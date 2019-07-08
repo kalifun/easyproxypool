@@ -1,4 +1,5 @@
 from datetime import datetime
+from Proxy.utils.avatar import get_pic
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash,generate_password_hash
 db = SQLAlchemy()
@@ -10,6 +11,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     createtime = db.Column(db.DateTime,default=datetime.now)
     locked = db.Column(db.Boolean,default=False)
+    description = db.Column(db.String(128),default="我不是英雄，我只做我想做的事，保护我想要保护的人而已。")
+    avatar = db.Column(db.String(128),default=get_pic())
     role_id = db.Column(db.Integer,db.ForeignKey('role.r_id'),default=3)
 
     def __init__(self,username,password):
@@ -35,6 +38,18 @@ class User(db.Model):
 
     def lockuser(self,lock):
         self.locked = lock
+        db.session.commit()
+
+    def uppic(self,src):
+        self.avatar = src
+        db.session.commit()
+
+    def updesc(self,des):
+        self.description = des
+        db.session.commit()
+
+    def addrole(self,roleid):
+        self.role_id = roleid
         db.session.commit()
 
     def to_json(self):
