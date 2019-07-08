@@ -68,6 +68,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+        <el-form>
+          <el-form-item label="新密码">
+            <el-input v-model="UpwForm.newpwd"  autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleup">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -87,23 +98,48 @@
               //   "role": "普通用户",
               //   "permission": ["查","增",'删']
               // }
-            ]
+            ],
+            dialogFormVisible: false,
+            UpwForm: {
+                "username": '',
+                "newpwd": ''
+              }
           }
         },
       methods: {
         handleDelete(index,row) {
-          console.log(row)
           this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
+            let username = row['username'];
+            this.$http.post('/delete',{'username':username})
+              .then(res => {
+                let msg = res.data['message'];
+                this.$message({
+                  type: 'success',
+                  message: msg
+                });
+                this.$router.go(0)
+              }).catch(error => {
+                let stat = error.response.status;
+                let msg = error.response.data["message"];
+                if (stat === 403) {
+                  this.$message({
+                    type: 'info',
+                    message: msg
+                  });
+                } else {
+                  this.$message({
+                    type: 'info',
+                    message: "请求失败"
+                  });
+                }
             });
-            this.tableData.splice(index,1);
-          }).catch(() => {
+            // this.tableData.splice(index,1);
+          }).catch(error => {
+            console.log(error)
             this.$message({
               type: 'info',
               message: '已取消删除'
@@ -134,6 +170,35 @@
             })
           });
           console.log(data)
+        },
+        handleEdit(index,row) {
+          this.dialogFormVisible = true;
+          let username = row['username'];
+          this.UpwForm.username = username;
+        },
+        handleup() {
+          this.dialogFormVisible = false;
+          this.$http.post('/admin/upwd',{username:this.UpwForm.username,newpwd:this.UpwForm.newpwd})
+            .then(res => {
+              this.$message({
+                message: '修改成功',
+                type: 'success'
+              });
+            }).catch(error => {
+              let stat = error.response.status;
+              let msg = error.response.data['message'];
+              if (stat === 403) {
+                this.$message({
+                  message: msg,
+                  type: 'info'
+                });
+              } else {
+                this.$message({
+                  message: '修改失败',
+                  type: 'info'
+                });
+              }
+          })
         }
       },
       mounted() {
@@ -142,10 +207,19 @@
               let data = res.data['data'];
               this.tableData = data;
             }).catch(error => {
-              this.$message({
-                message: '请求失败',
-                type: 'info'
-              })
+              let stat = error.response.status;
+              if (stat === 403) {
+                this.$message({
+                  message: '无权限访问',
+                  type: 'info'
+                });
+                this.$router.push('/home')
+              } else {
+                this.$message({
+                  message: '请求失败',
+                  type: 'info'
+                });
+              }
           })
       }
     }

@@ -68,6 +68,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+        <el-form>
+          <el-form-item label="新密码">
+            <el-input v-model="UpwForm.newpwd"  autocomplete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleup">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -87,7 +98,12 @@
           //   "role": "管理员",
           //   "permission": ["查","增",'删']
           // }
-        ]
+        ],
+        dialogFormVisible: false,
+        UpwForm: {
+          "username": '',
+          "newpwd": ''
+        }
       }
     },
     methods: {
@@ -107,7 +123,7 @@
                 type: 'success',
                 message: msg
               });
-              this.$router.push('/adminList')
+              this.$router.go(0)
             }).catch(error => {
               let stat = error.response.status;
               let msg = error.response.data["message"];
@@ -156,6 +172,35 @@
           })
         });
         console.log(data)
+      },
+      handleEdit() {
+        this.dialogFormVisible = true;
+        let username = row['username'];
+        this.UpwForm.username = username;
+      },
+      handleup() {
+        this.dialogFormVisible = false;
+        this.$http.post('/admin/upwd',{username:this.UpwForm.username,newpwd:this.UpwForm.newpwd})
+                .then(res => {
+                  this.$message({
+                    message: '修改成功',
+                    type: 'success'
+                  });
+                }).catch(error => {
+          let stat = error.response.status;
+          let msg = error.response.data['message'];
+          if (stat === 403) {
+            this.$message({
+              message: msg,
+              type: 'info'
+            });
+          } else {
+            this.$message({
+              message: '修改失败',
+              type: 'info'
+            });
+          }
+        })
       }
     },
     mounted() {

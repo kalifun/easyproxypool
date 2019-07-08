@@ -7,9 +7,11 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from './http/index'
 import store from './store/index'
+import clipboard from 'vue-clipboard2'
 
 Vue.config.productionTip = false;
-Vue.use(ElementUI)
+Vue.use(ElementUI);
+Vue.use(clipboard);
 Vue.prototype.$http = axios
 
 /* eslint-disable no-new */
