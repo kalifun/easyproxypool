@@ -114,9 +114,16 @@
 </script>
 
 <style scoped>
+  .regist{
+    background: url("../assets/bg.jpg") no-repeat scroll center center / cover;
+    background-size: 100% 100%;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+  }
   .regist-box{
     width: 20%;
-    top: 50%;
+    top: 10%;
     left: 50%;
     position: absolute;
     padding: 10px 40px 10px 40px;

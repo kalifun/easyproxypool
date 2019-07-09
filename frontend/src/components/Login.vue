@@ -96,7 +96,7 @@
 
 <style scoped>
   .login{
-    background: url("../assets/2.jpg") no-repeat scroll center center / cover;
+    background: url("../assets/bg.jpg") no-repeat scroll center center / cover;
     background-size: 100% 100%;
     height: 100%;
     width: 100%;
